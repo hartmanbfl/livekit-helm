@@ -11,6 +11,10 @@ metadata:
   {{- with .Values.loadBalancer.annotations }}
     {{- toYaml . | nindent 4 }}
   {{- end }}
+  # Azure Application Gateway
+  {{- if eq .Values.loadBalancer.type "azure-app-gw" }}
+    kubernetes.io/ingress.class: azure/application-gateway
+  {{- end }}
   # AWS ALB
   {{- if eq .Values.loadBalancer.type "alb" }}
     kubernetes.io/ingress.class: alb
@@ -35,7 +39,7 @@ apiVersion: networking.k8s.io/v1
 apiVersion: extensions/v1beta1
 {{- end }}
 spec:
-  {{- if eq .Values.loadBalancer.type "do" }}
+  {{- if or (eq .Values.loadBalancer.type "do") (eq .Values.loadBalancer.type "nginx") }}
   ingressClassName: nginx
   {{- end }}
   rules:
